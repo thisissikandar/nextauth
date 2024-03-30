@@ -1,11 +1,12 @@
 import { connectDB } from "@/dbConfig/dbConfig";
+import { sendEmail } from "@/helpers/nodemailer";
 import User from "@/models/userModel";
 
 import bcryptjs from "bcryptjs";
 
 import { NextRequest, NextResponse } from "next/server";
 
-connectDB() 
+connectDB();
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,15 +17,14 @@ export async function POST(request: NextRequest) {
     const user = await User.findOne({ email });
     if (user) {
       return NextResponse.json(
-        { error: "User already exists" },
-        { status: 400 }
+        { error: "User already exists" }
       );
     }
-
+    // console.log(user);
     //    hash password
     const salt = await bcryptjs.genSalt(10);
     const hashPassword = await bcryptjs.hash(password, salt);
-
+    // console.log(hashPassword);
     const newUser = new User({
       username,
       email,
@@ -33,12 +33,13 @@ export async function POST(request: NextRequest) {
     const saveUser = await newUser.save();
     // console.log("saveUser", saveUser);
 
+    await sendEmail({ email, emailType: "VERIFY", userId: saveUser._id });
     return NextResponse.json({
       message: "User Created successfully",
       success: true,
       saveUser,
     });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message,status:500 });
   }
 }

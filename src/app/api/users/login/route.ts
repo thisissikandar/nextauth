@@ -18,11 +18,10 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    console.log(user);
 
     // compare password with db password
     const isPasswordCorrect = await bcryptjs.compare(password, user.password);
-    console.log("password",isPasswordCorrect);
+  
     if (!isPasswordCorrect) {
       return NextResponse.json(
         { error: "enter correct password" },

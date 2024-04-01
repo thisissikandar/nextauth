@@ -14,14 +14,16 @@ export async function POST(request: NextRequest) {
       verifyTokenExpiry: { $gt: Date.now() },
     });
     if (!user) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid token" });
     }
     console.log(user);
-    user.isVerified = true
-    user.verifyToken= undefined;
-    user.verifyTokenExpiry= undefined;
-  await user.save();
-  return NextResponse.json({message: "emaail verify success"},{ status: 200})
+    user.isVerified = true;
+    user.verifyToken = undefined;
+    user.verifyTokenExpiry = undefined;
+    await user.save();
+    return NextResponse.json(
+      { message: "emaail verify success" }
+    );
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
